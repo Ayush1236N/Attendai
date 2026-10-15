@@ -1,0 +1,321 @@
+:root {
+  /* Attendai — glassmorphism theme: vivid gradient backdrop + frosted,
+     translucent panels. Every surface (sidebar, cards, inputs, buttons)
+     shares the same glass treatment: semi-transparent fill, blur, a thin
+     bright border to suggest a glass edge, and a soft top highlight. */
+  --ink: #0c0b14;
+  --ink-2: #14121f;
+  --paper: #0c0b14;
+
+  /* Glass panel fill — noticeably translucent so the colorful backdrop
+     shows through the blur, which is the whole point of the look. */
+  --panel: rgba(255, 255, 255, 0.09);
+  --panel-strong: rgba(255, 255, 255, 0.14);
+  --panel-solid: #1c1a2a;
+  --line: rgba(255, 255, 255, 0.22);
+  --line-soft: rgba(255, 255, 255, 0.12);
+
+  --text: #f5f3fb;
+  --text-muted: #b7b3c9;
+
+  --present: #3ecf8e;
+  --late: #e8a33d;
+  --absent: #ef6d7a;
+  --accent: #c9903f;
+  --accent-2: #6fd9c7;
+  --accent-3: #9b8cff;
+
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'IBM Plex Sans', sans-serif;
+
+  --radius: 18px;
+  --radius-sm: 12px;
+
+  --glass-blur: blur(22px) saturate(180%);
+}
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  /* Vivid, colorful blobs behind everything — this is what the frosted glass
+     panels actually refract/blur, which is what makes a glass UI read as
+     "glass" rather than just a plain dark theme. */
+  background:
+    radial-gradient(700px circle at 8% 8%, rgba(201, 144, 63, 0.55), transparent 60%),
+    radial-gradient(800px circle at 92% 15%, rgba(111, 217, 199, 0.45), transparent 60%),
+    radial-gradient(750px circle at 20% 95%, rgba(155, 140, 255, 0.4), transparent 60%),
+    radial-gradient(650px circle at 85% 90%, rgba(239, 109, 122, 0.35), transparent 60%),
+    linear-gradient(160deg, #0a0912 0%, #14101f 50%, #0a0912 100%);
+  background-attachment: fixed;
+  animation: drift 24s ease-in-out infinite alternate;
+}
+
+@keyframes drift {
+  0%   { background-position: 0% 0%, 100% 0%, 0% 100%, 100% 100%, 0 0; }
+  100% { background-position: 6% 5%, 94% 8%, 8% 92%, 92% 94%, 0 0; }
+}
+
+h1, h2, h3, .display {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+button { font-family: var(--font-body); cursor: pointer; }
+a { color: inherit; }
+
+/* ---------- Glass mixin, applied via each component below ---------- */
+/* (no @apply in plain CSS — the same declarations are repeated on each
+   selector that needs the glass treatment: .sidebar, .panel, .stat-card,
+   .login-card, inputs/selects, and buttons.) */
+
+/* ---------- Shell ---------- */
+
+.app-shell {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 100vh;
+}
+
+.sidebar {
+  background: var(--panel);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-right: 1px solid var(--line);
+  box-shadow: 1px 0 0 rgba(255,255,255,0.06) inset, 8px 0 32px -20px rgba(0,0,0,0.6);
+  color: #f1e7da;
+  padding: 26px 18px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar .brand {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 36px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+.sidebar .brand span {
+  background: linear-gradient(135deg, var(--accent), var(--accent-3));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.sidebar nav { display: flex; flex-direction: column; gap: 3px; }
+
+.sidebar nav a {
+  text-decoration: none;
+  color: #cfc9dd;
+  padding: 11px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  transition: background .15s, color .15s, transform .15s;
+}
+.sidebar nav a:hover { background: rgba(255,255,255,0.1); color: #fff; transform: translateX(2px); }
+.sidebar nav a.active {
+  background: linear-gradient(135deg, rgba(201,144,63,0.35), rgba(155,140,255,0.25));
+  color: #fff;
+  border: 1px solid var(--line);
+  box-shadow: 0 4px 18px -6px rgba(201,144,63,0.45), 0 1px 0 rgba(255,255,255,0.15) inset;
+}
+
+.sidebar .admin-info {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--line-soft);
+  font-size: 13px;
+  color: #b3aac4;
+}
+
+.main {
+  padding: 36px 44px;
+  max-width: 1320px;
+}
+
+.page-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 26px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.page-header h1 { font-size: 25px; }
+.page-header .sub { color: var(--text-muted); font-size: 13px; margin-top: 4px; }
+
+/* ---------- Glass cards ---------- */
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+.stat-card, .panel, .login-card {
+  position: relative;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.18) inset,
+    0 20px 44px -24px rgba(0,0,0,0.7);
+  transition: transform .15s ease-out, box-shadow .2s ease-out, background .2s ease-out;
+  overflow: hidden;
+}
+/* Thin bright line along the top edge — the classic "light catching the rim
+   of the glass" detail that sells the effect. */
+.stat-card::before, .panel::before, .login-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.7), transparent);
+}
+.stat-card:hover, .panel:hover, .login-card:hover {
+  background: var(--panel-strong);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.22) inset,
+    0 30px 60px -22px rgba(0,0,0,0.75),
+    0 0 48px -16px rgba(201,144,63,0.4);
+}
+
+.stat-card { padding: 18px 20px; }
+.stat-card .label { font-size: 12px; color: var(--text-muted); text-transform: none; }
+.stat-card .value { font-family: var(--font-display); font-size: 30px; margin-top: 8px; }
+.stat-card.present .value { color: var(--present); }
+.stat-card.absent .value { color: var(--absent); }
+.stat-card.late .value { color: var(--late); }
+
+.panel { padding: 22px 24px; margin-bottom: 22px; }
+
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th {
+  text-align: left;
+  font-weight: 500;
+  color: var(--text-muted);
+  font-size: 12px;
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--line-soft);
+}
+td { padding: 11px 10px; border-bottom: 1px solid var(--line-soft); }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,0.05); }
+
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid rgba(255,255,255,0.12);
+}
+.badge.present { background: rgba(62,207,142,0.18); color: var(--present); }
+.badge.checked_out { background: rgba(111,217,199,0.18); color: var(--accent-2); }
+.badge.absent { background: rgba(239,109,122,0.18); color: var(--absent); }
+.badge.leave { background: rgba(201,144,63,0.2); color: var(--accent); }
+.badge.half_day { background: rgba(224,178,90,0.2); color: #e0b25a; }
+
+.btn {
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: var(--radius-sm);
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  background: linear-gradient(135deg, rgba(201,144,63,0.9), rgba(224,172,95,0.9));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #201406;
+  box-shadow: 0 8px 22px -10px rgba(201,144,63,0.7), 0 1px 0 rgba(255,255,255,0.3) inset;
+  transition: transform .15s, box-shadow .15s, opacity .15s;
+}
+.btn:hover { transform: translateY(-2px); box-shadow: 0 14px 28px -10px rgba(201,144,63,0.8), 0 1px 0 rgba(255,255,255,0.35) inset; }
+.btn:active { transform: translateY(0) scale(.97); }
+.btn.secondary {
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--line);
+  color: var(--text);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.15) inset;
+}
+.btn.secondary:hover { background: rgba(255,255,255,0.16); }
+.btn.danger { background: linear-gradient(135deg, rgba(239,109,122,0.9), rgba(240,138,132,0.9)); color: #2a0c0a; border-color: rgba(255,255,255,0.25); }
+
+input, select {
+  font-family: var(--font-body);
+  padding: 10px 13px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--text);
+}
+input::placeholder { color: rgba(245,243,251,0.4); }
+select option { background: var(--panel-solid); color: var(--text); }
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(201,144,63,0.25);
+}
+
+/* ---------- Login ---------- */
+
+.login-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.login-card { padding: 44px; width: 380px; }
+.login-card h1 { font-size: 22px; margin-bottom: 4px; }
+.login-card .sub { color: var(--text-muted); font-size: 13px; margin-bottom: 26px; }
+.field { margin-bottom: 16px; display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: 13px; color: var(--text-muted); }
+.field input, .field select { width: 100%; }
+.error-text { color: var(--absent); font-size: 13px; margin-top: 10px; }
+
+.camera-frame {
+  width: 320px;
+  height: 240px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+
+/* Work-mode, employment-type and late badges */
+.badge.office { background: rgba(155,140,255,0.2); color: var(--accent-3); }
+.badge.remote { background: rgba(111,217,199,0.18); color: var(--accent-2); }
+.badge.late { background: rgba(232,163,61,0.2); color: var(--late); }
+.badge.onsite { background: rgba(155,140,255,0.2); color: var(--accent-3); }
+.badge.hybrid { background: rgba(232,163,61,0.2); color: var(--late); }
+.sidebar nav a { white-space: nowrap; }
+
+/* Plain-CSS glass (liquid-glass-react removed). Buttons: no stacking quirks. */
+.btn { display: inline-flex; align-items: center; justify-content: center; line-height: 1.2; white-space: nowrap; }
+.login-card { max-width: calc(100vw - 32px); }

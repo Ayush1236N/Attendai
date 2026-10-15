@@ -1,0 +1,21 @@
+{
+  "expo": {
+    "name": "Attendai Kiosk",
+    "slug": "attendai-kiosk",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "android": {
+      "package": "com.yourcompany.attendaikiosk",
+      "permissions": ["CAMERA"]
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Attendai Kiosk needs camera access to recognize faces for check-in and check-out."
+        }
+      ]
+    ]
+  }
+}

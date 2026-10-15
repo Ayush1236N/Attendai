@@ -1,0 +1,57 @@
+/* Native <button> around GlassButton's LiquidGlass — fully unstyled so only
+   the glass surface inside is visible, but keeps real button semantics
+   (type="submit", :disabled, keyboard Enter/Space activation). */
+.glass-btn-reset {
+  all: unset;
+  display: inline-flex;
+  box-sizing: border-box;
+}
+.glass-btn-reset:focus-visible .glass-surface {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 2px;
+}
+
+.glass-btn-label {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  position: relative;
+  z-index: 1;
+}
+
+/* Variant tints — a translucent color wash behind the glass refraction
+   layer, so GlassButton still reads as primary/secondary/danger the same
+   way .btn/.btn.secondary/.btn.danger used to. */
+.glass-btn-primary {
+  background: linear-gradient(135deg, rgba(201, 144, 63, 0.55), rgba(224, 172, 95, 0.55));
+}
+.glass-btn-primary .glass-btn-label { color: #2a1a06; }
+
+.glass-btn-secondary {
+  background: rgba(255, 255, 255, 0.12);
+}
+.glass-btn-secondary .glass-btn-label { color: var(--text); }
+
+.glass-btn-danger {
+  background: linear-gradient(135deg, rgba(239, 109, 122, 0.55), rgba(240, 138, 132, 0.55));
+}
+.glass-btn-danger .glass-btn-label { color: #330a0a; }
+
+/* Safari/Firefox fallback: LiquidGlass's own displacement/refraction layer
+   is inert on those browsers (per the library's README), but every element
+   using it also keeps its original CSS class (panel / stat-card / login-card
+   / sidebar), whose backdrop-filter blur + translucent background still
+   apply there — so the surface still reads as frosted glass either way. This
+   rule is a belt-and-suspenders fallback in case a future variant forgets to
+   pass one of those classes through. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass-surface {
+    background: rgba(28, 26, 42, 0.86) !important;
+  }
+}
+.glass-surface {
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  backdrop-filter: blur(18px) saturate(160%);
+}

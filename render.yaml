@@ -1,0 +1,112 @@
+# Render Blueprint — deploys all three web-facing pieces of Attendai in one go.
+#
+# HOW TO RUN THIS FILE:
+#   1. Push this repo (with this render.yaml at the root) to GitHub/GitLab.
+#   2. Go to https://dashboard.render.com -> New + -> Blueprint.
+#   3. Connect the repo. Render finds this file automatically and shows you
+#      a preview of the 3 services it's about to create.
+#   4. It will pause and ask you to fill in a few values marked "sync: false"
+#      below (MongoDB URI, SMTP credentials) — enter them in the dashboard.
+#   5. Click "Apply" — Render builds and deploys all three services.
+#   6. The mobile app (employee-app) isn't here — it's not a web service,
+#      see WHATS_NEW.md / the deployment guide for how to point it at your
+#      new backend URL.
+#
+# Not included: MongoDB itself. Render doesn't host MongoDB — use a free
+# MongoDB Atlas cluster and paste its connection string in when prompted.
+
+services:
+  # --- Face recognition microservice (Python/FastAPI) -----------------------
+  - type: web
+    name: attendai-face-service
+    runtime: docker
+    rootDir: face-service
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "8000"
+
+  # --- Main API (Node/Express) ----------------------------------------------
+  - type: web
+    name: attendai-backend
+    runtime: docker
+    rootDir: backend
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_EXPIRES_IN
+        value: 8h
+      # Render generates a real random secret for this the first time it
+      # deploys — you never have to type one in.
+      - key: JWT_SECRET
+        generateValue: true
+      # You'll be prompted for these in the dashboard the first time you
+      # apply this Blueprint (they're secrets, so they don't live in Git).
+      - key: MONGO_URI
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_FROM
+        value: "Attendai <no-reply@attendai.app>"
+      - key: PASSWORD_RESET_EXPIRY_MINUTES
+        value: "30"
+      - key: EMPLOYEE_2FA_REQUIRED
+        value: "true"
+      - key: TIMEZONE
+        value: "Asia/Kolkata"
+      # Power BI feed (leave blank in the dashboard to keep a feature switched off).
+      - key: REPORTING_API_KEY
+        sync: false
+      - key: REPORTING_WRITE_KEY
+        sync: false
+      - key: WAREHOUSE_SYNC_HOUR
+        value: "2"
+      - key: FACE_MATCH_THRESHOLD
+        value: "0.80"
+      - key: UPLOAD_MAX_SIZE_MB
+        value: "5"
+      # Render fills these in automatically once the other two services in
+      # this same Blueprint exist — no manual copy-pasting of URLs.
+      - key: FACE_SERVICE_URL
+        fromService:
+          type: web
+          name: attendai-face-service
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: FRONTEND_URL
+        fromService:
+          type: web
+          name: attendai-admin-dashboard
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: ALLOWED_ORIGINS
+        fromService:
+          type: web
+          name: attendai-admin-dashboard
+          envVarKey: RENDER_EXTERNAL_URL
+
+  # --- Admin dashboard (static React/Vite build) ----------------------------
+  - type: web
+    runtime: static
+    name: attendai-admin-dashboard
+    rootDir: admin-dashboard
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      # Baked into the build, so it has to be filled in AFTER the backend's
+      # first deploy (you'll know its URL by then). Render will prompt you;
+      # if left blank at first, redeploy this service once you have it —
+      # Dashboard -> attendai-admin-dashboard -> Environment.
+      - key: VITE_API_URL
+        sync: false
